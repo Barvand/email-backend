@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Sanitize input function (Preserve spaces & newlines)
+// Secure HTML Escaping Function
 const escapeHTML = (str) => {
   return String(str)
     .replace(/&/g, "&amp;") // Escape &
@@ -37,10 +37,10 @@ const isValidEmail = (email) => {
 app.post("/send-email", async (req, res) => {
   let { subject, textArea, email, name } = req.body;
 
-  // Sanitize all inputs
-  name = sanitizeInput(name);
-  subject = sanitizeInput(subject);
-  textArea = sanitizeInput(textArea);
+  // Sanitize all inputs using escapeHTML()
+  name = escapeHTML(name);
+  subject = escapeHTML(subject);
+  textArea = escapeHTML(textArea);
 
   // Validate email
   if (!isValidEmail(email)) {
@@ -61,20 +61,20 @@ app.post("/send-email", async (req, res) => {
 
   try {
     await transporter.sendMail({
-      from: `"${escapeHTML(name)}" <no-reply@yourdomain.com>`,
+      from: `"${name}" <no-reply@yourdomain.com>`,
       to: "bartberg11@gmail.com",
-      subject: escapeHTML(subject),
+      subject: subject,
       text: `New Contact Form Submission\n\n${JSON.stringify(
         req.body,
         null,
         2
       )}`, // Plain text email
       html: `
-    <h3>New Contact Form Submission</h3>
-    <pre>${escapeHTML(
-      JSON.stringify(req.body, null, 2)
-    )}</pre> <!-- ✅ Now fully escapes HTML -->
-  `,
+        <h3>New Contact Form Submission</h3>
+        <pre>${escapeHTML(
+          JSON.stringify(req.body, null, 2)
+        )}</pre> <!-- ✅ Now fully escapes HTML -->
+      `,
     });
 
     res.status(200).json({ message: "Email sent successfully!" });
