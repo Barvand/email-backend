@@ -17,16 +17,17 @@ const transporter = nodemailer.createTransport({
 });
 
 // Sanitize input function (Preserve spaces & newlines)
-const sanitizeInput = (input) => {
-  return input
+const escapeHTML = (str) => {
+  return str
     .replace(/&/g, "&amp;") // Escape &
     .replace(/</g, "&lt;") // Escape <
     .replace(/>/g, "&gt;") // Escape >
     .replace(/"/g, "&quot;") // Escape "
     .replace(/'/g, "&#039;") // Escape '
-    .replace(/\n/g, "<br>") // Convert newlines to <br> for HTML formatting
+    .replace(/\n/g, "<br>") // Convert newlines to <br> for HTML emails
     .trim();
 };
+
 // Validate email function
 const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -60,17 +61,19 @@ app.post("/send-email", async (req, res) => {
 
   try {
     await transporter.sendMail({
-      from: `"${name}" <no-reply@yourdomain.com>`,
+      from: `"${escapeHTML(name)}" <no-reply@yourdomain.com>`,
       to: "bartberg11@gmail.com",
-      subject: subject,
-      text: `Sender Name: ${name}\nSender Email: ${email}\n\nMessage:\n${textArea}`, // Plain text email
+      subject: escapeHTML(subject),
+      text: `New Contact Form Submission\n\n${JSON.stringify(
+        req.body,
+        null,
+        2
+      )}`, // Plain text version
       html: `
     <h3>New Contact Form Submission</h3>
-    <p><strong>Name:</strong> ${sanitizeInput(name)}</p>
-    <p><strong>Email:</strong> ${sanitizeInput(email)}</p>
-    <p><strong>Subject:</strong> ${sanitizeInput(subject)}</p>
-    <p><strong>Message:</strong></p>
-    <p>${sanitizeInput(textArea)}</p> <!-- ✅ FIX: HTML tags are now escaped -->
+    <pre>${escapeHTML(
+      JSON.stringify(req.body, null, 2)
+    )}</pre> <!-- ✅ Now fully escapes HTML -->
   `,
     });
 
