@@ -9,20 +9,21 @@ app.use(cors());
 
 // Nodemailer Transporter
 const transporter = nodemailer.createTransport({
-  service: "gmail", // Change if needed
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-// Sanitize input function
+// Sanitize input function (Preserve spaces & newlines)
 const sanitizeInput = (input) => {
   return input
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;")
+    .replace(/</g, "&lt;") // Escape < (prevents XSS)
+    .replace(/>/g, "&gt;") // Escape >
+    .replace(/"/g, "&quot;") // Escape quotes
+    .replace(/'/g, "&#039;") // Escape single quotes
+    .replace(/\r?\n/g, "<br>") // Convert newlines to <br> (keeps message formatting)
     .trim();
 };
 
@@ -59,17 +60,17 @@ app.post("/send-email", async (req, res) => {
 
   try {
     await transporter.sendMail({
-      from: `"${name}" <no-reply@yourdomain.com>`, // Secure sender field
-      to: "bartberg11@gmail.com", // Your actual email
+      from: `"${name}" <no-reply@yourdomain.com>`,
+      to: "bartberg11@gmail.com",
       subject: subject,
-      text: `Sender Name: ${name}\nSender Email: ${email}\n\nMessage:\n${textArea}`,
+      text: `Sender Name: ${name}\nSender Email: ${email}\n\nMessage:\n${textArea}`, // Keep text format
       html: `
         <h3>New Contact Form Submission</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${sanitizeInput(email)}</p>
         <p><strong>Subject:</strong> ${subject}</p>
         <p><strong>Message:</strong></p>
-        <p>${textArea}</p>
+        <p>${sanitizeInput(textArea)}</p> <!-- Line breaks now work -->
       `,
     });
 
