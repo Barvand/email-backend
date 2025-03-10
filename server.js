@@ -18,13 +18,13 @@ const transporter = nodemailer.createTransport({
 
 // Sanitize input function (Preserve spaces & newlines)
 const escapeHTML = (str) => {
-  return str
+  return String(str)
     .replace(/&/g, "&amp;") // Escape &
     .replace(/</g, "&lt;") // Escape <
     .replace(/>/g, "&gt;") // Escape >
     .replace(/"/g, "&quot;") // Escape "
     .replace(/'/g, "&#039;") // Escape '
-    .replace(/\n/g, "<br>") // Convert newlines to <br> for HTML emails
+    .replace(/\n/g, "<br>") // Preserve newlines for readability
     .trim();
 };
 
@@ -68,7 +68,7 @@ app.post("/send-email", async (req, res) => {
         req.body,
         null,
         2
-      )}`, // Plain text version
+      )}`, // Plain text email
       html: `
     <h3>New Contact Form Submission</h3>
     <pre>${escapeHTML(
