@@ -32,10 +32,14 @@ app.post("/send-email", async (req, res) => {
     return res.status(400).json({ error: "Invalid email address." });
   }
   if (!subject || subject.length > 100) {
-    return res.status(400).json({ error: "Subject is required (max 100 characters)." });
+    return res
+      .status(400)
+      .json({ error: "Subject is required (max 100 characters)." });
   }
   if (!textArea || textArea.length > 1000) {
-    return res.status(400).json({ error: "Message is required (max 1000 characters)." });
+    return res
+      .status(400)
+      .json({ error: "Message is required (max 1000 characters)." });
   }
 
   const html = `
@@ -78,7 +82,7 @@ app.post("/send-email", async (req, res) => {
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:20px 40px;">
           <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">
             Reply directly to this email to respond to ${name}.
-            Sent via the contact form at <a href="https://bartberg.no" style="color:#ff6b00;text-decoration:none;">bartberg.no</a>.
+            Sent via the contact form at <a href="https://bartholomeusberg.com" style="color:#ff6b00;text-decoration:none;">bartholomuesberg.no</a>.
           </p>
         </div>
 
