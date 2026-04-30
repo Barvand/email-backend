@@ -93,8 +93,8 @@ app.post("/send-email", async (req, res) => {
 
   try {
     await resend.emails.send({
-      from: "Portfolio Contact <onboarding@resend.dev>",
-      to: [process.env.BCC_EMAIL],
+      from: `Portfolio Contact <contact@bartholomeusberg.com>`,
+      to: [process.env.BCC_EMAIL, process.env.CONTACT_EMAIL],
       reply_to: email,
       subject: `[Portfolio] ${subject}`,
       text: `New message from ${name} (${email})\n\nSubject: ${subject}\n\n${textArea}`,
